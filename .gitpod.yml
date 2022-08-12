@@ -1,7 +1,19 @@
+image:
+  file: ./dev/image/Dockerfile
+  context: ./dev/image
+
+
+
 tasks:
-- init: ./mvnw -B dependency:go-offline package -DskipTests
-  command: java -jar target/*.jar
-  name: Run PetClinic app
+  - name: Start Tailscale
+    command: |
+      screen -d -m sudo tailscaled --state=mem:
+      sudo -E tailscale up --accept-dns --advertise-tags=tag:cs-node --accept-routes
+  - init: ./mvnw -B dependency:go-offline package -DskipTests
+    command: java -jar target/*.jar
+    name: Run PetClinic app
+
+      
 
 # exposed ports
 ports:
@@ -12,10 +24,5 @@ vscode:
   extensions:
     - pivotal.vscode-spring-boot
     - vscjava.vscode-java-pack
+    - redhat.java
 
-jetbrains:
-  intellij:  
-    plugins:
-      - com.haulmont.jpab
-    prebuilds:
-      version: both
